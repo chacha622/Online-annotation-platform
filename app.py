@@ -6,8 +6,9 @@ try:
     from dataset_loader import load_all_user_task_data, task_data_upload_ui
     from task_manager import task_admin_ui
     from task_guard import guard_user_task_access
-except ModuleNotFoundError as e:
-    raise ModuleNotFoundError("当前环境未安装 Streamlit 或其依赖模块。请先在本地或支持的 Python 环境中运行，或安装所需模块：pip install streamlit pandas openpyxl xlsxwriter")
+except ModuleNotFoundError:
+    import sys
+    sys.exit("❌ 缺少必要模块 'streamlit'，请先运行：pip install streamlit pandas openpyxl xlsxwriter")
 
 st.set_page_config(page_title="标注平台", layout="wide")
 
