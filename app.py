@@ -12,13 +12,17 @@ except ModuleNotFoundError:
 
 st.set_page_config(page_title="标注平台", layout="wide")
 
-# 登录并获取角色
-user_name, user_role = check_user_role()
+# 登录与身份确认
+login_info = check_user_role()
+if not login_info:
+    st.stop()
+
+user_name, user_role = login_info
 is_owner = user_role == "发布人"
 
 st.title("📌 多任务标注平台")
 
-# 发布人页面
+# 发布人界面
 if is_owner:
     st.header("🧩 发布人操作区")
     task_data_upload_ui()     # 上传任务数据
@@ -26,6 +30,9 @@ if is_owner:
     st.divider()
     st.header("🗂️ 标注区（支持自我标注）")
     all_tasks = list(st.session_state.all_assignments.keys())
+    if not all_tasks:
+        st.warning("当前没有可用任务，请先上传并分配任务")
+        st.stop()
     task_to_mark = st.selectbox("选择任务开始标注", all_tasks)
     df_dict = load_all_user_task_data(user_name, [task_to_mark])
 else:
@@ -33,6 +40,7 @@ else:
     assigned = get_user_tasks(user_name)
     valid_tasks = guard_user_task_access(user_name, assigned)
     if not valid_tasks:
+        st.warning("你尚未被分配任何任务")
         st.stop()
     task_to_mark = st.selectbox("选择任务开始标注", valid_tasks)
     df_dict = load_all_user_task_data(user_name, [task_to_mark])
